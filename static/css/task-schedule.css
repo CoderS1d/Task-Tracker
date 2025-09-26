@@ -1,0 +1,72 @@
+.task-schedule-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.task-list-container {
+    max-height: none;
+    overflow-y: visible;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 0;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    padding: 1rem;
+}
+
+.card-body {
+    padding: 0;
+}
+
+#taskList {
+    padding: 0.5rem;
+}
+
+.task-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s;
+}
+
+.task-item:last-child {
+    border-bottom: none;
+}
+
+.task-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Weekly schedule styling */
+#weeklySchedule {
+    border-radius: 0 0 0.25rem 0.25rem;
+}
+
+.accordion-item:first-of-type {
+    border-top: none;
+}
+
+.accordion-item:last-of-type {
+    border-bottom: none;
+    border-radius: 0 0 0.25rem 0.25rem;
+}
+
+.accordion-button {
+    padding: 0.75rem 1rem;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e9ecef;
+}
+
+.accordion-body {
+    padding: 0.75rem;
+    background-color: #fff;
+}

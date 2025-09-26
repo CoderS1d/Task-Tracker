@@ -1,0 +1,126 @@
+/* Calendar count styles */
+.fc-daygrid-day-top {
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 0 !important;
+    min-height: 24px !important;
+}
+
+.fc-daygrid-day-number {
+    width: auto !important;
+    font-weight: 500;
+    padding: 2px !important;
+}
+
+.count-container {
+    display: flex !important;
+    gap: 2px;
+    margin-top: 0;
+    justify-content: center;
+    line-height: 1;
+}
+
+.task-count, .schedule-count {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    color: white !important;
+    font-size: 0.7em;
+    padding: 0 4px;
+    border-radius: 8px;
+    font-weight: 500;
+    min-width: 14px;
+    height: 14px;
+    line-height: 1;
+}
+
+.task-count {
+    background-color: #2196F3;
+}
+
+.schedule-count {
+    background-color: #4CAF50;
+    position: relative;
+}
+
+.schedule-count .completed {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: #FFC107;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    font-size: 0.7em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000 !important;
+    border: 1.5px solid #fff;
+}
+
+/* Background events styling */
+.fc-bg-event {
+    opacity: 0.1 !important;
+}
+
+/* Style for days with tasks */
+.fc-day-has-events {
+    background-color: rgba(33, 150, 243, 0.05);
+}
+
+/* Week view header styling */
+.fc-weekday-header {
+    text-align: center;
+    padding: 4px;
+}
+
+.weekday-name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.weekday-date {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin: 2px 0;
+}
+
+.fc-daygrid-day-number {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* Active day styling */
+.fc-day-selected {
+    background-color: rgba(33, 150, 243, 0.1) !important;
+}
+
+/* Week view specific styles */
+.fc-timeGridWeek-view .fc-col-header-cell {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Hover effects */
+.fc-day:hover {
+    background-color: rgba(33, 150, 243, 0.05);
+}
+
+/* Today styling */
+.fc-day-today {
+    background-color: rgba(33, 150, 243, 0.05) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+    color: #2196F3;
+    font-weight: 600;
+}
+
+/* Task count hover effect */
+.task-count:hover {
+    background-color: #1976D2;
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}

@@ -1,0 +1,260 @@
+.fc-day-selected {
+    background-color: rgba(33, 150, 243, 0.1) !important;
+}
+
+.fc-day:hover {
+    background-color: rgba(33, 150, 243, 0.05);
+    cursor: pointer;
+}
+
+.schedule-date {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.schedule-empty {
+    color: #6c757d;
+    font-style: italic;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+/* Timeline styles for daily schedule */
+.timeline-container {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    position: relative;
+    margin: 4px 0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.timeline-item:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transform: translateX(2px);
+}
+
+.timeline-item .btn {
+    min-width: 80px;
+}
+
+/* Weekly schedule management styles */
+.accordion-item {
+    border: 1px solid rgba(0,0,0,.125);
+    margin-bottom: 5px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.accordion-button {
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    background-color: #f8f9fa;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e9ecef;
+    color: #2c3e50;
+}
+
+.schedule-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    margin-bottom: 4px;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.schedule-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.schedule-time {
+    min-width: 100px;
+    text-align: center;
+    background-color: #6c757d;
+}
+
+.schedule-task {
+    flex: 1;
+    font-size: 0.95em;
+    color: #495057;
+    margin: 0 12px;
+}
+
+.delete-schedule {
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 4px 8px;
+}
+
+.schedule-item:hover .delete-schedule {
+    opacity: 1;
+}
+
+.delete-schedule i {
+    font-size: 0.9em;
+}
+
+.timeline-dot.completed {
+    background-color: #28a745 !important;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -2rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #2196F3;
+    margin-top: 0;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-line {
+    position: absolute;
+    left: -1.95rem;
+    top: 1.2rem;
+    width: 2px;
+    height: calc(100% + 0.5rem);
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.schedule-time {
+    min-width: 100px;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    margin-right: 8px;
+}
+
+.schedule-task-container {
+    flex: 1;
+    padding-left: 0.5rem;
+    position: relative;
+}
+
+.schedule-task {
+    font-size: 0.95rem;
+    color: #2c3e50;
+    padding: 2px 0;
+}
+
+/* Task type styles */
+.timeline-dot.class {
+    background-color: #4CAF50;
+}
+
+.schedule-task.class {
+    color: #2E7D32;
+    font-weight: 500;
+}
+
+.schedule-time.class {
+    border-left: 3px solid #4CAF50;
+}
+
+.timeline-dot.work {
+    background-color: #2196F3;
+}
+
+.schedule-task.work {
+    color: #1565C0;
+    font-weight: 500;
+}
+
+.schedule-time.work {
+    border-left: 3px solid #2196F3;
+}
+
+.timeline-dot.study {
+    background-color: #9C27B0;
+}
+
+.schedule-task.study {
+    color: #6A1B9A;
+}
+
+.schedule-time.study {
+    border-left: 3px solid #9C27B0;
+}
+
+.timeline-dot.startup {
+    background-color: #FF9800;
+}
+
+.schedule-task.startup {
+    color: #EF6C00;
+}
+
+.schedule-time.startup {
+    border-left: 3px solid #FF9800;
+}
+
+.timeline-dot.rest {
+    background-color: #795548;
+}
+
+.schedule-task.rest {
+    color: #4E342E;
+}
+
+.schedule-time.rest {
+    border-left: 3px solid #795548;
+}
+
+.timeline-dot.break {
+    background-color: #9E9E9E;
+}
+
+.schedule-task.break {
+    color: #616161;
+}
+
+.schedule-time.break {
+    border-left: 3px solid #9E9E9E;
+}
+
+#dailySchedule {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-top: 1rem;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+/* Hover effects */
+.schedule-item:hover {
+    background-color: rgba(33, 150, 243, 0.05);
+}
+
+/* Current time indicator */
+.schedule-item.current {
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+.schedule-task.current {
+    font-weight: 500;
+}

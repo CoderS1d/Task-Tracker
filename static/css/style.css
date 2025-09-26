@@ -1,0 +1,203 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container-fluid {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.row {
+    height: 100%;
+}
+
+.sidebar {
+    background-color: #ffffff;
+    height: 100vh;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.calendar-wrapper {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    flex: 0 0 auto;
+}
+
+.calendar-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.streak-container {
+    flex: 0 0 auto;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.fc {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.fc-toolbar-title {
+    font-size: 1.2em !important;
+    font-weight: 500 !important;
+}
+
+.fc-button {
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+    color: #495057 !important;
+}
+
+.fc-button-active {
+    background-color: #e9ecef !important;
+    border-color: #dee2e6 !important;
+}
+
+.calendar-view-options .btn-group {
+    width: 100%;
+}
+
+.calendar-view-options .btn {
+    flex: 1;
+}
+
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.streak-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.schedule-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.task-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.task-item.completed {
+    background-color: #e8f5e9;
+}
+
+.task-checkbox {
+    margin-right: 15px;
+}
+
+.task-title {
+    flex-grow: 1;
+}
+
+.task-category {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+
+.category-Study { background-color: #e3f2fd; color: #1565c0; }
+.category-Work { background-color: #fce4ec; color: #c2185b; }
+.category-Project { background-color: #f3e5f5; color: #7b1fa2; }
+.category-Startup { background-color: #e8f5e9; color: #2e7d32; }
+.category-General { background-color: #eeeeee; color: #424242; }
+
+.schedule-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+
+.schedule-time {
+    min-width: 120px;
+    font-weight: 500;
+}
+
+.streak-stats {
+    height: 200px;
+    margin-top: 15px;
+}
+
+.priority-High {
+    border-left: 4px solid #dc3545;
+}
+
+.priority-Medium {
+    border-left: 4px solid #ffc107;
+}
+
+.priority-Low {
+    border-left: 4px solid #28a745;
+}
+
+.task-streak {
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background-color: #e3f2fd;
+    color: #1565c0;
+    margin-left: 10px;
+}
+
+.calendar-container {
+    height: 500px;
+    margin-bottom: 20px;
+}
+
+.fc-event {
+    cursor: pointer;
+}
+
+.edit-task-btn {
+    margin-left: 10px;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.edit-task-btn:hover {
+    color: #0d6efd;
+}
