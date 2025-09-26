@@ -9,9 +9,11 @@ from schedule import default_schedule
 app = Flask(__name__)
 
 # Configure the database
-if os.environ.get('RAILWAY_ENVIRONMENT'):
+DATABASE_URL = "postgresql://postgres:NeuNLCSePwKdMkPjoMebgghcvSgsfyvJ@shortline.proxy.rlwy.net:32610/railway"
+
+if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('USE_POSTGRES'):
     # Use PostgreSQL on Railway
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 else:
     # Use SQLite locally
     basedir = os.path.abspath(os.path.dirname(__file__))
@@ -25,7 +27,11 @@ db = SQLAlchemy(app)
 
 # Create tables if they don't exist
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+        print("Database tables created successfully!")
+    except Exception as e:
+        print(f"Error creating database tables: {str(e)}")
 
 # Database Models
 class Task(db.Model):
