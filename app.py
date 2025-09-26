@@ -250,34 +250,57 @@ def update_streak():
 
 @app.route('/toggle_schedule_task', methods=['POST'])
 def toggle_schedule_task():
-    data = request.json
-    
-    # Parse the date from the request, default to today
-    task_date = datetime.strptime(data.get('date', date.today().strftime('%Y-%m-%d')), '%Y-%m-%d').date()
-    
-    # Find or create schedule task for the specific date
-    schedule_task = ScheduleTask.query.filter_by(
-        day=data['day'],
-        time=data['time'],
-        task=data['task'],
-        date=task_date
-    ).first()
-    
-    if not schedule_task:
-        # Create new task for this specific date
-        schedule_task = ScheduleTask(
-            day=data['day'],
-            time=data['time'],
-            task=data['task'],
-            date=task_date,
-            completed=True
-        )
-        db.session.add(schedule_task)
-    else:
-        # Toggle existing task for this specific date
-        schedule_task.completed = not schedule_task.completed
-    
-    db.session.commit()
+    try:
+        data = request.json
+        print(f"Toggle schedule task request: {data}")
+        
+        # Parse the date from the request, default to today
+        task_date = datetime.strptime(data.get('date', date.today().strftime('%Y-%m-%d')), '%Y-%m-%d').date()
+        
+        # Find or create schedule task for the specific date using the session query
+        schedule_task = db.session.query(ScheduleTask).filter(
+            ScheduleTask.day == data['day'],
+            ScheduleTask.time == data['time'],
+            ScheduleTask.task == data['task'],
+            ScheduleTask.date == task_date
+        ).first()
+        
+        if not schedule_task:
+            print(f"Creating new schedule task for {data['day']} at {data['time']}")
+            # Create new task for this specific date
+            schedule_task = ScheduleTask(
+                day=data['day'],
+                time=data['time'],
+                task=data['task'],
+                date=task_date,
+                completed=True
+            )
+            db.session.add(schedule_task)
+        else:
+            print(f"Toggling existing schedule task, current status: {schedule_task.completed}")
+            # Toggle existing task for this specific date
+            schedule_task.completed = not schedule_task.completed
+        
+        db.session.commit()
+        print("Database update successful")
+        
+        # Update streak for this specific date
+        if task_date == date.today():
+            update_streak()
+        
+        return jsonify({
+            'success': True,
+            'completed': schedule_task.completed,
+            'date': task_date.strftime('%Y-%m-%d')
+        })
+    except Exception as e:
+        print(f"Error in toggle_schedule_task: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
     
     # Update streak for this specific date
     if task_date == date.today():
@@ -291,35 +314,53 @@ def toggle_schedule_task():
 
 @app.route('/get_schedule_status', methods=['GET'])
 def get_schedule_status():
-    # Get the date from query parameters, default to today
-    date_str = request.args.get('date')
-    if date_str:
-        try:
-            current_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        except ValueError:
+    try:
+        # Get the date from query parameters, default to today
+        date_str = request.args.get('date')
+        if date_str:
+            try:
+                current_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                current_date = date.today()
+        else:
             current_date = date.today()
-    else:
-        current_date = date.today()
-    
-    day_name = current_date.strftime('%A')
-    
-    # Get tasks for the specific date only
-    tasks = ScheduleTask.query.filter_by(date=current_date).all()
-    completed_tasks = {(task.time, task.task): task.completed for task in tasks}
-    
-    # Get default schedule for the day
-    from schedule import default_schedule
-    day_schedule = default_schedule.get(day_name, [])
-    
-    return jsonify({
-        'tasks': [{
-            'day': day_name,
-            'time': item['time'],
-            'task': item['task'],
-            'completed': completed_tasks.get((item['time'], item['task']), False),
-            'date': current_date.strftime('%Y-%m-%d')
-        } for item in day_schedule]
-    })
+        
+        day_name = current_date.strftime('%A')
+        print(f"Getting schedule for {day_name}, {current_date}")
+        
+        # Get tasks for the specific date only using the correct table name
+        tasks = db.session.query(ScheduleTask).filter(
+            ScheduleTask.date == current_date
+        ).all()
+        
+        completed_tasks = {(task.time, task.task): task.completed for task in tasks}
+        print(f"Found {len(tasks)} completed tasks for today")
+        
+        # Get default schedule for the day
+        from schedule import default_schedule
+        day_schedule = default_schedule.get(day_name, [])
+        print(f"Default schedule has {len(day_schedule)} items for {day_name}")
+        
+        result = {
+            'tasks': [{
+                'day': day_name,
+                'time': item['time'],
+                'task': item['task'],
+                'completed': completed_tasks.get((item['time'], item['task']), False),
+                'date': current_date.strftime('%Y-%m-%d')
+            } for item in day_schedule]
+        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"Error in get_schedule_status: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'tasks': [],
+            'error': str(e)
+        })
 
 @app.route('/get_tasks/<date_str>')
 def get_tasks(date_str):
