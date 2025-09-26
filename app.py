@@ -25,9 +25,23 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize SQLAlchemy
 db = SQLAlchemy(app)
 
+def verify_db_connection():
+    """Verify database connection and table existence."""
+    try:
+        # Try to connect to the database
+        db.session.execute('SELECT 1')
+        return True
+    except Exception as e:
+        print(f"Database connection error: {str(e)}")
+        return False
+
 def init_db():
     """Initialize the database, creating all tables."""
     with app.app_context():
+        if not verify_db_connection():
+            print("Failed to connect to database!")
+            return False
+
         # Drop all tables first to ensure clean state
         try:
             print("Dropping existing tables...")
@@ -39,13 +53,21 @@ def init_db():
         try:
             print("Creating tables...")
             db.create_all()
-            print("Tables created successfully!")
             
             # Verify tables were created
             inspector = db.inspect(db.engine)
             tables = inspector.get_table_names()
             print(f"Created tables: {', '.join(tables)}")
             
+            # Verify each table exists
+            expected_tables = ['task_table', 'task_streak_table', 'streak_table', 'schedule_task_table']
+            missing_tables = [t for t in expected_tables if t not in tables]
+            
+            if missing_tables:
+                print(f"Error: Missing tables: {', '.join(missing_tables)}")
+                return False
+                
+            print("All tables created successfully!")
             return True
         except Exception as e:
             print(f"Error creating tables: {str(e)}")
@@ -60,6 +82,7 @@ if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('USE_POSTGRES'):
 
 # Database Models
 class Task(db.Model):
+    __tablename__ = 'task_table'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     is_completed = db.Column(db.Boolean, default=False)
@@ -71,24 +94,36 @@ class Task(db.Model):
     time_slot = db.Column(db.String(50))
     
 class TaskStreak(db.Model):
+    __tablename__ = 'task_streak_table'
     id = db.Column(db.Integer, primary_key=True)
-    task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
+    task_id = db.Column(db.Integer, db.ForeignKey('task_table.id'))
     date = db.Column(db.Date, nullable=False)
     completed = db.Column(db.Boolean, default=False)
     
+    __table_args__ = (
+        db.Index('idx_task_streak_date', 'date'),
+    )
+    
 class Streak(db.Model):
+    __tablename__ = 'streak_table'
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     completed_tasks = db.Column(db.Integer, default=0)
     total_tasks = db.Column(db.Integer, default=0)
 
 class ScheduleTask(db.Model):
+    __tablename__ = 'schedule_task_table'
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.String(20), nullable=False)  # Monday, Tuesday, etc.
     time = db.Column(db.String(50), nullable=False)  # time slot like "06:00-07:00"
     task = db.Column(db.String(200), nullable=False)
     completed = db.Column(db.Boolean, default=False)
     date = db.Column(db.Date, nullable=False)  # The actual date of completion
+    
+    __table_args__ = (
+        db.Index('idx_schedule_task_date', 'date'),
+        db.Index('idx_schedule_task_lookup', 'day', 'time', 'task'),
+    )
     
     # Add index for faster querying
     __table_args__ = (
