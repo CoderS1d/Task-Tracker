@@ -25,13 +25,38 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize SQLAlchemy
 db = SQLAlchemy(app)
 
-# Create tables if they don't exist
-with app.app_context():
-    try:
-        db.create_all()
-        print("Database tables created successfully!")
-    except Exception as e:
-        print(f"Error creating database tables: {str(e)}")
+def init_db():
+    """Initialize the database, creating all tables."""
+    with app.app_context():
+        # Drop all tables first to ensure clean state
+        try:
+            print("Dropping existing tables...")
+            db.drop_all()
+        except Exception as e:
+            print(f"Note: Could not drop tables: {str(e)}")
+
+        # Create all tables
+        try:
+            print("Creating tables...")
+            db.create_all()
+            print("Tables created successfully!")
+            
+            # Verify tables were created
+            inspector = db.inspect(db.engine)
+            tables = inspector.get_table_names()
+            print(f"Created tables: {', '.join(tables)}")
+            
+            return True
+        except Exception as e:
+            print(f"Error creating tables: {str(e)}")
+            return False
+
+# Initialize database tables
+if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('USE_POSTGRES'):
+    print("Initializing database on Railway/PostgreSQL...")
+    success = init_db()
+    if not success:
+        raise Exception("Failed to initialize database!")
 
 # Database Models
 class Task(db.Model):
@@ -519,5 +544,7 @@ def safe_migrate_db():
             print(f"Existing database verified with {len(existing_tables)} tables!")
 
 if __name__ == '__main__':
-    safe_migrate_db()  # Safely initialize/migrate database
+    if not os.environ.get('RAILWAY_ENVIRONMENT'):
+        # Only run migration locally
+        safe_migrate_db()  # Safely initialize/migrate database
     app.run(debug=True)
