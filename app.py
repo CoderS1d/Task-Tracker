@@ -8,16 +8,24 @@ from schedule import default_schedule
 # Create the Flask application
 app = Flask(__name__)
 
-# Get the absolute path for the database file
-basedir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(basedir, 'tasks.db')
+# Configure the database
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    # Use PostgreSQL on Railway
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+else:
+    # Use SQLite locally
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    db_path = os.path.join(basedir, 'tasks.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
-# Configure the SQLAlchemy database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy
 db = SQLAlchemy(app)
+
+# Create tables if they don't exist
+with app.app_context():
+    db.create_all()
 
 # Database Models
 class Task(db.Model):
