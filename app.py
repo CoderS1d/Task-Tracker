@@ -74,11 +74,23 @@ def init_db():
             return False
 
 # Initialize database tables
-if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('USE_POSTGRES'):
-    print("Initializing database on Railway/PostgreSQL...")
+is_railway = bool(os.environ.get('RAILWAY_ENVIRONMENT')) or bool(os.environ.get('RAILWAY_STATIC_URL'))
+is_postgres = bool(os.environ.get('USE_POSTGRES'))
+
+if is_railway or is_postgres:
+    print(f"Initializing database on {'Railway' if is_railway else 'PostgreSQL'}...")
+    print(f"Using database URL: {DATABASE_URL}")
+    
+    # Verify database connection
+    if not verify_db_connection():
+        raise Exception("Failed to connect to database!")
+    
+    # Initialize database
     success = init_db()
     if not success:
         raise Exception("Failed to initialize database!")
+    
+    print("Database initialization completed successfully!")
 
 # Database Models
 class Task(db.Model):
@@ -133,10 +145,15 @@ class ScheduleTask(db.Model):
 
 @app.route('/')
 def index():
-    today = date.today()
-    tasks = Task.query.filter_by(date=today).all()
-    streaks = Streak.query.order_by(Streak.date.desc()).all()
-    return render_template('index.html', tasks=tasks, streaks=streaks, schedule=default_schedule)
+    try:
+        today = date.today()
+        tasks = Task.query.filter_by(date=today).all()
+        streaks = Streak.query.order_by(Streak.date.desc()).all()
+        return render_template('index.html', tasks=tasks, streaks=streaks, schedule=default_schedule)
+    except Exception as e:
+        print(f"Error in index route: {str(e)}")
+        # Return an empty result rather than failing
+        return render_template('index.html', tasks=[], streaks=[], schedule=default_schedule)
 
 @app.route('/add_task', methods=['POST'])
 def add_task():
@@ -565,18 +582,34 @@ def get_schedule():
 def safe_migrate_db():
     """Safely migrate the database schema without losing data."""
     with app.app_context():
-        # Get all existing tables
-        inspector = db.inspect(db.engine)
-        existing_tables = inspector.get_table_names()
-        
-        # Create any missing tables
-        db.create_all()
-        
-        print(f"Database ready at: {db_path}")
-        if not existing_tables:
-            print("New database initialized successfully!")
-        else:
-            print(f"Existing database verified with {len(existing_tables)} tables!")
+        try:
+            # Get all existing tables
+            inspector = db.inspect(db.engine)
+            existing_tables = inspector.get_table_names()
+            
+            # Create any missing tables
+            db.create_all()
+            
+            # Verify all tables were created
+            inspector = db.inspect(db.engine)
+            current_tables = inspector.get_table_names()
+            expected_tables = ['task_table', 'task_streak_table', 'streak_table', 'schedule_task_table']
+            missing_tables = [t for t in expected_tables if t not in current_tables]
+            
+            if missing_tables:
+                print(f"Warning: Missing tables after migration: {', '.join(missing_tables)}")
+            else:
+                print("All expected tables are present")
+            
+            print(f"Database ready with tables: {', '.join(current_tables)}")
+            if not existing_tables:
+                print("New database initialized successfully!")
+            else:
+                print(f"Existing database migrated with {len(current_tables)} tables!")
+                
+        except Exception as e:
+            print(f"Error during database migration: {str(e)}")
+            raise
 
 if __name__ == '__main__':
     if not os.environ.get('RAILWAY_ENVIRONMENT'):
