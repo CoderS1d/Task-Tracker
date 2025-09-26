@@ -8,89 +8,39 @@ from schedule import default_schedule
 # Create the Flask application
 app = Flask(__name__)
 
-# Configure the database
-DATABASE_URL = "postgresql://postgres:NeuNLCSePwKdMkPjoMebgghcvSgsfyvJ@shortline.proxy.rlwy.net:32610/railway"
+# Database configuration
+basedir = os.path.abspath(os.path.dirname(__file__))
 
-if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('USE_POSTGRES'):
+# Configure the database connection
+if os.environ.get('RAILWAY_ENVIRONMENT'):
     # Use PostgreSQL on Railway
-    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:NeuNLCSePwKdMkPjoMebgghcvSgsfyvJ@shortline.proxy.rlwy.net:32610/railway"
+    print("Using Railway PostgreSQL database")
 else:
     # Use SQLite locally
-    basedir = os.path.abspath(os.path.dirname(__file__))
     db_path = os.path.join(basedir, 'tasks.db')
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    print("Using local SQLite database")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy
 db = SQLAlchemy(app)
 
-def verify_db_connection():
-    """Verify database connection and table existence."""
+# Ensure all tables are created
+with app.app_context():
     try:
-        # Try to connect to the database
-        db.session.execute('SELECT 1')
-        return True
-    except Exception as e:
-        print(f"Database connection error: {str(e)}")
-        return False
-
-def init_db():
-    """Initialize the database, creating all tables."""
-    with app.app_context():
-        if not verify_db_connection():
-            print("Failed to connect to database!")
-            return False
-
-        # Drop all tables first to ensure clean state
-        try:
-            print("Dropping existing tables...")
-            db.drop_all()
-        except Exception as e:
-            print(f"Note: Could not drop tables: {str(e)}")
-
         # Create all tables
-        try:
-            print("Creating tables...")
-            db.create_all()
-            
-            # Verify tables were created
-            inspector = db.inspect(db.engine)
-            tables = inspector.get_table_names()
-            print(f"Created tables: {', '.join(tables)}")
-            
-            # Verify each table exists
-            expected_tables = ['task_table', 'task_streak_table', 'streak_table', 'schedule_task_table']
-            missing_tables = [t for t in expected_tables if t not in tables]
-            
-            if missing_tables:
-                print(f"Error: Missing tables: {', '.join(missing_tables)}")
-                return False
-                
-            print("All tables created successfully!")
-            return True
-        except Exception as e:
-            print(f"Error creating tables: {str(e)}")
-            return False
-
-# Initialize database tables
-is_railway = bool(os.environ.get('RAILWAY_ENVIRONMENT')) or bool(os.environ.get('RAILWAY_STATIC_URL'))
-is_postgres = bool(os.environ.get('USE_POSTGRES'))
-
-if is_railway or is_postgres:
-    print(f"Initializing database on {'Railway' if is_railway else 'PostgreSQL'}...")
-    print(f"Using database URL: {DATABASE_URL}")
-    
-    # Verify database connection
-    if not verify_db_connection():
-        raise Exception("Failed to connect to database!")
-    
-    # Initialize database
-    success = init_db()
-    if not success:
-        raise Exception("Failed to initialize database!")
-    
-    print("Database initialization completed successfully!")
+        db.create_all()
+        
+        # Verify the tables were created
+        inspector = db.inspect(db.engine)
+        tables = inspector.get_table_names()
+        print(f"Available tables: {', '.join(tables)}")
+        
+    except Exception as e:
+        print(f"Database initialization error: {str(e)}")
+        raise
 
 # Database Models
 class Task(db.Model):
@@ -147,11 +97,16 @@ class ScheduleTask(db.Model):
 def index():
     try:
         today = date.today()
-        tasks = Task.query.filter_by(date=today).all()
-        streaks = Streak.query.order_by(Streak.date.desc()).all()
+        # Query tasks for today using the correct table name
+        tasks = db.session.query(Task).filter(Task.date == today).all()
+        # Query streaks using the correct table name
+        streaks = db.session.query(Streak).order_by(Streak.date.desc()).all()
+        
         return render_template('index.html', tasks=tasks, streaks=streaks, schedule=default_schedule)
     except Exception as e:
         print(f"Error in index route: {str(e)}")
+        import traceback
+        traceback.print_exc()
         # Return an empty result rather than failing
         return render_template('index.html', tasks=[], streaks=[], schedule=default_schedule)
 
@@ -612,7 +567,4 @@ def safe_migrate_db():
             raise
 
 if __name__ == '__main__':
-    if not os.environ.get('RAILWAY_ENVIRONMENT'):
-        # Only run migration locally
-        safe_migrate_db()  # Safely initialize/migrate database
     app.run(debug=True)
